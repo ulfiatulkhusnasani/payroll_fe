@@ -1,4 +1,5 @@
 'use client';
+
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from 'next/navigation';
 import React, { useContext, useState } from 'react';
@@ -54,7 +55,7 @@ const Register = () => {
         }
 
         try {
-            const response = await fetch('http://192.168.200.37:8001/api/register', {
+            const response = await fetch('http://127.0.0.1:8000/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

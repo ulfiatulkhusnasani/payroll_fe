@@ -13,9 +13,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { Calendar } from "primereact/calendar";
 
-
-
-
 interface LeaveRequest {
     id: number;
     id_karyawan: string;
@@ -54,16 +51,16 @@ const Cuti = () => {
     let toast: any = null;  // Inisialisasi Toast
 
     const statusOptions = [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Disetujui', value: 'disetujui' },
-        { label: 'Ditolak', value: 'ditolak' },
-    ];
+        { label: "Pending", value: "pending" },
+        { label: "Disetujui", value: "disetujui" },
+        { label: "Ditolak", value: "ditolak" },
+    ];    
 
     const fetchRequests = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/izin", {
+            const response = await axios.get("http://127.0.0.1:8000/api/izin", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(response.data);
@@ -78,7 +75,7 @@ const Cuti = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/karyawan", {
+            const response = await axios.get("http://127.0.0.1:8000/api/karyawan", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setKaryawanList(response.data);
@@ -88,7 +85,6 @@ const Cuti = () => {
             setLoading(false);
         }
     };
-    
 
     const handleAxiosError = (error: unknown, context: string) => {
         if (axios.isAxiosError(error)) {
@@ -129,12 +125,12 @@ const Cuti = () => {
             };
             const response = isEdit
                 ? await axios.put(
-                    `http://192.168.200.37:8001/api/izin/${newRequest.id}`,
+                    `http://127.0.0.1:8000/api/izin/${newRequest.id}`,
                     dataToSend,
                     { headers: { Authorization: `Bearer ${token}` } }
                 )
                 : await axios.post(
-                    "http://192.168.200.37:8001/api/izin",
+                    "http://127.0.0.1:8000/api/izin",
                     dataToSend,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -172,36 +168,38 @@ const Cuti = () => {
         setIsEdit(false);
     };
     
-    
-
     const handleStatusChange = async (e: any, rowData: LeaveRequest) => {
-        const updatedRequest = { ...rowData, status: e.value };
-        const token = localStorage.getItem("authToken");
+        const updatedRequest = { ...rowData, status: e.value }; // Salin data permohonan dan ubah statusnya
+    
+        const token = localStorage.getItem("authToken"); // Ambil token otentikasi dari local storage
     
         try {
+            // Kirim permohonan update ke server
             await axios.put(
-                `http://192.168.200.37:8001/api/izin${updatedRequest.id}`,
-                updatedRequest,
+                `http://127.0.0.1:8000/api/izin/${updatedRequest.id}`,
+                updatedRequest, // Data yang dikirimkan untuk memperbarui permohonan
                 { headers: { Authorization: `Bearer ${token}` } }
             );
     
-            setRequests(
-                requests.map((request) =>
+            // Setelah permohonan berhasil diupdate, update data di frontend
+            setRequests((prevRequests) =>
+                prevRequests.map((request) =>
                     request.id === updatedRequest.id ? updatedRequest : request
                 )
             );
     
+            // Tampilkan notifikasi sukses menggunakan SweetAlert
             Swal.fire({
                 title: "Berhasil!",
-                text: "Status permohonan cuti berhasil diperbarui.",
+                text: `Status permohonan cuti berhasil diubah menjadi ${e.value}.`,
                 icon: "success",
             });
         } catch (error) {
+            // Tangani kesalahan jika permohonan gagal diupdate
             handleAxiosError(error, "update status permohonan cuti");
         }
-    };
+    };    
     
-
     const handleDelete = async (id: number) => {
         const token = localStorage.getItem("authToken");
     
@@ -218,7 +216,7 @@ const Cuti = () => {
             });
     
             if (confirmDelete.isConfirmed) {
-                await axios.delete(`http://192.168.200.37:8001/api/izin/${id}`, {
+                await axios.delete(`http://127.0.0.1:8000/api/izin/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
     
@@ -231,8 +229,6 @@ const Cuti = () => {
             handleAxiosError(error, "menghapus permohonan cuti");
         }
     };
-    
-    
 
     const getNamaKaryawan = (id_karyawan: string) => {
         const karyawan = karyawanList.find(karyawan => karyawan.id === id_karyawan);
@@ -249,8 +245,6 @@ const Cuti = () => {
         setDialogVisible(true); // Tampilkan dialog
     };
     
-    
-
     return (
         <div className="grid">
             <div className="col-12">
@@ -262,8 +256,6 @@ const Cuti = () => {
     className="p-button-primary mr-2"
     onClick={handleOpenDialog}
 />
-
-
                     <DataTable value={requests} responsiveLayout="scroll">
                         {/* Kolom No Urut */}
                         <Column
@@ -282,16 +274,18 @@ const Cuti = () => {
                         <Column field="keterangan" header="Keterangan" />
                         {/* Kolom Status dengan Dropdown */}
                         <Column
-                            field="status"
-                            header="Status"
-                            body={(rowData) => (
-                                <Dropdown
-                                    value={rowData.status}
-                                    options={statusOptions}
-                                    onChange={(e) => handleStatusChange(e, rowData)}
-                                />
-                            )}
-                        />
+    field="status"
+    header="Status"
+    body={(rowData) => (
+        <Dropdown
+            value={rowData.status}
+            options={statusOptions} // Array opsi untuk status
+            onChange={(e) => handleStatusChange(e, rowData)} // Fungsi untuk mengubah status
+            optionLabel="label" // Menampilkan label dari status
+            className="p-dropdown"
+        />
+    )}
+/>
                         {/* Kolom Edit dan Delete */}
                         <Column
     header="Aksi"
@@ -410,7 +404,6 @@ const Cuti = () => {
         </div>
     </div>
 </Dialog>
-
                 </div>
             </div>
         </div>

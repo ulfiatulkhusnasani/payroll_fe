@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import { Calendar } from 'primereact/calendar';
-const { MapContainer, TileLayer, Marker, Popup } = require('react-leaflet');
+// const { MapContainer, TileLayer, Marker, Popup } = require('react-leaflet');
 import 'leaflet/dist/leaflet.css';
 import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
@@ -12,6 +12,11 @@ import { addLocale, locale } from 'primereact/api';
 import { useRouter } from 'next/navigation'; // Import useRouter untuk navigasi
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
+import dynamic from 'next/dynamic';
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 
 // Data locations with Madiun included
 const locations = [
@@ -19,6 +24,19 @@ const locations = [
 ];
 
 const Dashboard = () => {
+
+    // Custom Pin Icon with a red pin
+    let pinIcon = null;
+    if (typeof window !== 'undefined') {
+        const L = require('leaflet');
+        pinIcon = new L.Icon({
+            iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [0, -41],
+        });
+    }
+
     const menu1 = useRef<Menu>(null);
     const [calendarDate, setCalendarDate] = useState<Date | null>(null);
     const [employees, setEmployees] = useState<any[]>([]); // State to store employees data
@@ -52,19 +70,13 @@ const Dashboard = () => {
         locale('en');
     }, []);
 
-    // Custom Pin Icon with a red pin
-    const pinIcon = new L.Icon({
-        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png', // URL for red pin icon
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [0, -41],
-    });
+
 
     // Fetch employees data
     const fetchEmployees = async () => {
         const token = localStorage.getItem('authToken');
         try {
-            const response = await axios.get('http://192.168.200.37:8001/api/karyawan', {
+            const response = await axios.get('http://127.0.0.1:8000/api/karyawan', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -81,7 +93,7 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/izin", {
+            const response = await axios.get("http://127.0.0.1:8000/api/izin", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(response.data);
@@ -97,7 +109,7 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/lembur", {
+            const response = await axios.get("http://127.0.0.1:8000/api/lembur", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setOvertime(response.data); // Save overtime data in state
@@ -113,7 +125,7 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/dinas_luarkota", {
+            const response = await axios.get("http://127.0.0.1:8000/api/dinas_luarkota", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setDinasLuarKota(response.data); // Save dinas luar kota data in state
@@ -159,7 +171,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">{employees.length}</div> {/* Display employee count */}
                         </div>
                         <div className="flex align-items-center justify-content-center"
-                             style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#8FFF7C', borderRadius: '50%' }}>
+                            style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#8FFF7C', borderRadius: '50%' }}>
                             <i className="pi pi-user text-xl" />
                         </div>
                     </div>
@@ -177,7 +189,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">{requests.length}</div> {/* Display leave requests count */}
                         </div>
                         <div className="flex align-items-center justify-content-center"
-                             style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#7C96FF', borderRadius: '50%' }}>
+                            style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#7C96FF', borderRadius: '50%' }}>
                             <i className="pi pi-fw pi-exclamation-circle text-xl" />
                         </div>
                     </div>
@@ -195,7 +207,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">{overtime.length}</div> {/* Display overtime count */}
                         </div>
                         <div className="flex align-items-center justify-content-center"
-                             style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#FA6568', borderRadius: '50%' }}>
+                            style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#FA6568', borderRadius: '50%' }}>
                             <i className="pi pi-clock text-xl" />
                         </div>
                     </div>
@@ -213,7 +225,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">{dinasLuarKota.length}</div> {/* Display dinas luar kota count */}
                         </div>
                         <div className="flex align-items-center justify-content-center"
-                             style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#EFE070', borderRadius: '50%' }}>
+                            style={{ width: '2.5rem', height: '2.5rem', backgroundColor: '#EFE070', borderRadius: '50%' }}>
                             <i className="pi pi-fw pi-car text-xl" />
                         </div>
                     </div>
@@ -261,7 +273,7 @@ const Dashboard = () => {
                             <Menu
                                 ref={menu1}
                                 popup
-                                model={[{ label: 'Add New', icon: 'pi pi-fw pi-plus' }, { label: 'Remove', icon: 'pi pi-fw pi-minus' }]}/>
+                                model={[{ label: 'Add New', icon: 'pi pi-fw pi-plus' }, { label: 'Remove', icon: 'pi pi-fw pi-minus' }]} />
                         </div>
                     </div>
                     <div className="relative" style={{ width: '100%', height: '400px' }}>

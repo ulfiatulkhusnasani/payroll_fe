@@ -55,7 +55,7 @@ const DataJabatan: React.FC = () => {
     }
 
     try {
-      const response = await axios.get("http://192.168.200.37:8001/api/jabatan", {
+      const response = await axios.get("http://127.0.0.1:8000/api/jabatan", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -147,7 +147,7 @@ const DataJabatan: React.FC = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://192.168.200.37:8001/api/jabatan/${id}`, {
+          await axios.delete(`http://127.0.0.1:8000/api/jabatan/${id}`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -163,10 +163,16 @@ const DataJabatan: React.FC = () => {
 
   const saveEmployee = async () => {
     try {
+      // Validasi form untuk memastikan semua field wajib diisi
       if (!formData.position || formData.baseSalary <= 0) {
-        throw new Error("Semua field harus diisi dan gaji pokok harus lebih dari 0");
+        Swal.fire({
+          icon: 'error',
+          title: 'Form tidak lengkap!',
+          text: 'Pastikan semua field wajib diisi dan gaji pokok lebih besar dari 0.',
+        });
+        return; // Hentikan eksekusi jika form tidak valid
       }
-
+  
       const payload = {
         jabatan: formData.position,
         gaji_pokok: formData.baseSalary,
@@ -176,15 +182,15 @@ const DataJabatan: React.FC = () => {
         tunjangan: formData.allowance,
         potongan: formData.deduction,
       };
-
+  
       const token = localStorage.getItem("authToken");
       if (!token) {
         throw new Error("Token tidak ditemukan, silakan login ulang.");
       }
-
+  
       if (selectedEmployee) {
         const response = await axios.put(
-          `http://192.168.200.37:8001/api/jabatan/${selectedEmployee.id}`,
+          `http://127.0.0.1:8000/api/jabatan/${selectedEmployee.id}`,
           payload,
           {
             headers: {
@@ -198,14 +204,14 @@ const DataJabatan: React.FC = () => {
           )
         );
       } else {
-        const response = await axios.post("http://192.168.200.37:8001/api/jabatan", payload, {
+        const response = await axios.post("http://127.0.0.1:8000/api/jabatan", payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         setEmployees([...employees, response.data]);
       }
-
+  
       setDialogVisible(false);
       fetchEmployees();
       Swal.fire({
@@ -218,7 +224,7 @@ const DataJabatan: React.FC = () => {
     } catch (error) {
       handleError(error);
     }
-  };
+  };  
 
   const hideDialog = () => {
     setDialogVisible(false);

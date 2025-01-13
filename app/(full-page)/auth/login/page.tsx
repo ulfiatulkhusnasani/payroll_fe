@@ -24,7 +24,7 @@ const HalamanLogin = () => {
     // HalamanLogin.js
     const handleSignIn = async () => {
         try {
-            const response = await fetch('http://192.168.200.37:8001/api/login', {
+            const response = await fetch('http://192.168.1.7:8001/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -10,6 +10,7 @@ import { Calendar } from "primereact/calendar";
 import axios, { AxiosError } from "axios";
 import { Toast } from "primereact/toast";
 import Swal from "sweetalert2";
+import { Dropdown } from "primereact/dropdown";
 
 interface Lembur {
     id: number;
@@ -19,6 +20,7 @@ interface Lembur {
     jam_selesai: string;
     durasi_lembur?: number;
     alasan_lembur: string;
+    status: string;
 }
 
 interface Karyawan {
@@ -43,6 +45,7 @@ const Lembur = () => {
         jam_selesai: "",
         durasi_lembur: 0,
         alasan_lembur: "",
+        status: "",
     });
     const [isEdit, setIsEdit] = useState(false);
     const toast = useRef<Toast>(null);
@@ -51,7 +54,7 @@ const Lembur = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/lembur", {
+            const response = await axios.get("http://127.0.0.1:8000/api/lembur", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLemburList(response.data);
@@ -66,7 +69,7 @@ const Lembur = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/karyawan", {
+            const response = await axios.get("http://127.0.0.1:8000/api/karyawan", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setKaryawanList(response.data);
@@ -115,6 +118,7 @@ const Lembur = () => {
             jam_selesai: "",
             durasi_lembur: 0,
             alasan_lembur: "",
+            status: "",
         });
         setIsEdit(false);
     };
@@ -123,8 +127,8 @@ const Lembur = () => {
         const token = localStorage.getItem("authToken");
         try {
             const url = isEdit
-                ? `http://192.168.200.37:8001/api/lembur/${newLembur.id}`
-                : "http://192.168.200.37:8001/api/lembur";
+                ? `http://127.0.0.1:8000/api/lembur/${newLembur.id}`
+                : "http://127.0.0.1:8000/api/lembur";
 
             const method = isEdit ? axios.put : axios.post;
 
@@ -168,7 +172,7 @@ const Lembur = () => {
             });
 
             if (confirmDelete.isConfirmed) {
-                await axios.delete(`http://192.168.200.37:8001/api/lembur/${id}`, {
+                await axios.delete(`http://127.0.0.1:8000/api/lembur/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 await fetchLemburList();
@@ -194,6 +198,38 @@ const Lembur = () => {
         const duration = (endTime - startTime) / (1000 * 60 * 60); // Convert ms to hours
         return duration > 0 ? duration : 0; // Jika hasil negatif, kembalikan 0
     };
+
+    const statusOptions = [
+        { label: "Pending", value: "pending" },
+        { label: "Disetujui", value: "disetujui" },
+        { label: "Ditolak", value: "ditolak" },
+    ];    
+
+    const handleStatusChange = async (e: any, rowData: Lembur) => {
+        const updatedLembur = { ...rowData, status: e.value }; // Update the status
+    
+        const token = localStorage.getItem("authToken"); // Authentication token
+    
+        try {
+            await axios.put(
+                `http://127.0.0.1:8000/api/lembur/${updatedLembur.id}`,
+                updatedLembur,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setLemburList((prevLemburList) =>
+                prevLemburList.map((lembur) =>
+                    lembur.id === updatedLembur.id ? updatedLembur : lembur
+                )
+            );
+            Swal.fire({
+                title: "Berhasil!",
+                text: `Status lembur berhasil diubah menjadi ${e.value}.`,
+                icon: "success",
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };    
 
     const getNamaKaryawan = (id: string) => {
         const karyawan = karyawanList.find((k) => k.id === id);
@@ -222,6 +258,20 @@ const Lembur = () => {
                         <Column field="jam_selesai" header="Jam Selesai" />
                         <Column field="durasi_lembur" header="Durasi (jam)" />
                         <Column field="alasan_lembur" header="Alasan Lembur" />
+                        <Column
+    field="status"
+    header="Status"
+    body={(rowData) => (
+        <Dropdown
+            value={rowData.status}
+            options={statusOptions}
+            onChange={(e) => handleStatusChange(e, rowData)}
+            optionLabel="label"
+            className="p-dropdown"
+        />
+    )}
+/>
+
                         <Column
                             body={(rowData) => (
                                 <div className="p-buttonset">
@@ -361,6 +411,18 @@ const Lembur = () => {
                                     }
                                 />
                             </div>
+                            <div className="field">
+    <label htmlFor="status">Status</label>
+    <Dropdown
+        id="status"
+        value={newLembur.status}
+        options={statusOptions}
+        onChange={(e) =>
+            setNewLembur({ ...newLembur, status: e.value })
+        }
+        optionLabel="label"
+    />
+</div>
                             <div className="p-mt-3">
                                 <Button
                                     label="Simpan"

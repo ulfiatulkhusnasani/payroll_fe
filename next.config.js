@@ -30,6 +30,10 @@ const nextConfig = {
                 destination: 'http://192.168.0.103:8000/api/karyawan', // Endpoint untuk daftar karyawan
             },
             // Tambahkan lebih banyak rewrites jika perlu
+            {
+                source: '/api/absensi/:path*',
+                destination: 'http://127.0.0.1:8000/api/absensi/:path*', // Endpoint untuk daftar karyawan
+            },
         ];
     },
 };

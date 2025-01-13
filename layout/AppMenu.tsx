@@ -1,4 +1,4 @@
-'use client'; // Penting untuk Next.js agar menjalankan komponen ini di sisi klien
+'use client'; // Penting untuk Next.js agar menjalankan komponen ini di sisi klien  
 
 /* eslint-disable @next/next/no-img-element */
 import React, { useContext } from 'react';
@@ -30,21 +30,10 @@ const AppMenu = () => {
                         { label: 'Dinas luar kota', icon: 'pi pi-fw pi-info-circle', to: '/pages/Dinas' }
                     ]
                 },
-                { label: 'Data Gaji', icon: 'pi pi-fw pi-money-bill', to: '/pages/Gaji' },
-                { label: 'Slip Gaji', icon: 'pi pi-fw pi-envelope', to: '/pages/Slip' },
-                { label: 'Laporan', icon: 'pi pi-fw pi-file', to: '/pages/Laporan' }
+                { label: 'Payroll', icon: 'pi pi-fw pi-money-bill', to: '/pages/Payroll' },
+                { label: 'Task', icon: 'pi pi-fw pi-check-circle', to: '/pages/Task' }, // Added Task here
             ]
         },
-        {
-            label: 'Pintasan',
-            items: [
-                {
-                    label: 'Keluar Akun',
-                    icon: 'pi pi-fw pi-sign-out',
-                    target: '_blank'
-                }
-            ]
-        }
     ];
 
     return (

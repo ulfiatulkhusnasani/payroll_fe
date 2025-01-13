@@ -43,7 +43,10 @@ export const LayoutProvider = ({ children }: ChildContainerProps) => {
     };
 
     const isDesktop = () => {
-        return window.innerWidth > 991;
+        if (window !== undefined) {
+            return window.innerWidth > 991;
+        }
+        return false
     };
 
     const value: LayoutContextProps = {

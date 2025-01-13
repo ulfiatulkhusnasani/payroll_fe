@@ -25,6 +25,7 @@ interface DinasLuarKota {
     biaya_penginapan: number;
     uang_harian: number;
     total_biaya: number;
+    status: string;
 }
 
 interface Karyawan {
@@ -53,7 +54,9 @@ const DinasLuarKota = () => {
         biaya_penginapan: 0,
         uang_harian: 0,
         total_biaya: 0,
+        status: "",
     });
+
     const [isEdit, setIsEdit] = useState(false); // Untuk menandai apakah sedang edit atau tambah
     let toast: any = null;
 
@@ -61,7 +64,7 @@ const DinasLuarKota = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/dinas_luarkota", {
+            const response = await axios.get("http://127.0.0.1:8000/api/dinas_luarkota", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setRequests(response.data);
@@ -76,7 +79,7 @@ const DinasLuarKota = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("authToken");
-            const response = await axios.get("http://192.168.200.37:8001/api/karyawan", {
+            const response = await axios.get("http://127.0.0.1:8000/api/karyawan", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setKaryawanList(response.data);
@@ -101,6 +104,8 @@ const DinasLuarKota = () => {
     const showToast = (severity: string, summary: string, detail: string) => {
         toast?.show({ severity, summary, detail, life: 3000 });
     };
+
+    const [dinasList, setDinasList] = useState<any[]>([]);
 
     useEffect(() => {
         fetchRequests();
@@ -131,12 +136,12 @@ const DinasLuarKota = () => {
     
             const response = isEdit
                 ? await axios.put(
-                    `http://192.168.200.37:8001/api/dinas_luarkota/${newRequest.id}`,
+                    `http://127.0.0.1:8000/api/dinas_luarkota/${newRequest.id}`,
                     dataToSend,
                     { headers: { Authorization: `Bearer ${token}` } }
                 )
                 : await axios.post(
-                    "http://192.168.200.37:8001/api/dinas_luarkota",
+                    "http://127.0.0.1:8000/api/dinas_luarkota",
                     dataToSend,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -160,6 +165,11 @@ const DinasLuarKota = () => {
         }
     };
     
+    const statusOptions = [
+        { label: "Pending", value: "pending" },
+        { label: "Disetujui", value: "disetujui" },
+        { label: "Ditolak", value: "ditolak" },
+    ];    
 
     const resetNewRequest = () => {
         setNewRequest({
@@ -173,9 +183,41 @@ const DinasLuarKota = () => {
             biaya_penginapan: 0,
             uang_harian: 0,
             total_biaya: 0,
+            status: "",
         });
         setIsEdit(false);
     };
+
+    const handleStatusChange = async (e: any, rowData: any) => {
+        const updatedDinas = { ...rowData, status: e.value }; // Update status
+    
+        const token = localStorage.getItem("authToken"); // Ambil token autentikasi
+    
+        try {
+            await axios.put(
+                `http://127.0.0.1:8000/api/dinas_luarkota/${updatedDinas.id}`,
+                updatedDinas,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setDinasList((prevDinasList) =>
+                prevDinasList.map((dinas) =>
+                    dinas.id === updatedDinas.id ? updatedDinas : dinas
+                )
+            );
+            Swal.fire({
+                title: "Berhasil!",
+                text: `Status dinas luar kota berhasil diubah menjadi ${e.value}.`,
+                icon: "success",
+            });
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                title: "Gagal!",
+                text: "Terjadi kesalahan saat mengubah status dinas luar kota.",
+                icon: "error",
+            });
+        }
+    };    
 
     const handleDelete = async (id: number) => {
         const token = localStorage.getItem("authToken");
@@ -192,7 +234,7 @@ const DinasLuarKota = () => {
             });
 
             if (confirmDelete.isConfirmed) {
-                await axios.delete(`http://192.168.200.37:8001/api/dinas_luarkota/${id}`, {
+                await axios.delete(`http://127.0.0.1:8000/api/dinas_luarkota/${id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -253,6 +295,19 @@ const DinasLuarKota = () => {
                         <Column field="biaya_penginapan" header="Biaya Penginapan" />
                         <Column field="uang_harian" header="Uang Harian" />
                         <Column field="total_biaya" header="Total Biaya" />
+                        <Column
+    field="status"
+    header="Status"
+    body={(rowData) => (
+        <Dropdown
+            value={rowData.status}
+            options={statusOptions}
+            onChange={(e) => handleStatusChange(e, rowData)}
+            optionLabel="label"
+            className="p-dropdown"
+        />
+    )}
+/>
                         <Column
                             header="Aksi"
                             body={(rowData) => (
@@ -432,6 +487,19 @@ const DinasLuarKota = () => {
                     className="form-control"
                 />
             </div>
+            <div className="mb-3">
+        <label htmlFor="status" className="form-label">Status</label>
+        <Dropdown
+            id="status"
+            value={newRequest.status}
+            options={statusOptions}
+            onChange={(e) =>
+                setNewRequest({ ...newRequest, status: e.value })
+            }
+            optionLabel="label"
+            className="form-control"
+        />
+        </div>
         </div>
     </form>
 </Dialog>

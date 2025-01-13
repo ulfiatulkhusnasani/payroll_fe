@@ -31,8 +31,8 @@ const DataKaryawan: React.FC = () => {
   const [id, setId] = useState<number | null>(null); // ID karyawan  
 
   // API base URLs for karyawan and jabatan  
-  const karyawanApiBaseUrl = "http://192.168.200.37:8001/api/karyawan";
-  const jabatanApiBaseUrl = "http://192.168.200.37:8001/api/jabatan";
+  const karyawanApiBaseUrl = "http://127.0.0.1:8000/api/karyawan";
+  const jabatanApiBaseUrl = "http://127.0.0.1:8000/api/jabatan";
 
   useEffect(() => {
     fetchKaryawan();

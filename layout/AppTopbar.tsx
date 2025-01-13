@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */   
 
 import Link from 'next/link';
 import { classNames } from 'primereact/utils';
@@ -18,10 +18,18 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         topbarmenubutton: topbarmenubuttonRef.current
     }));
 
+    const handleLogout = () => {
+        const confirmLogout = window.confirm("Apakah Anda yakin ingin logout?");
+        if (confirmLogout) {
+            // Arahkan ke halaman logout
+            window.location.href = "/auth/logout";
+        }
+    };
+
     return (
         <div className="layout-topbar">
             <Link href="/" className="layout-topbar-logo">
-                <img src={`/layout/images/payrollmetrics1.png`} width="47.22px" height={'35px'} alt="logo" />
+                <img src="/layout/images/payrollmetrics1.png" width="47.22px" height={'35px'} alt="logo" />
                 <span>PAYROLLMETRICS</span>
             </Link>
 
@@ -34,20 +42,16 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </button>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
-                <button type="button" className="p-link layout-topbar-button">
-                    <i className="pi pi-calendar"></i>
-                    <span>Calendar</span>
-                </button>
-                <Link href="/auth/login"><button type="button" className="p-link layout-topbar-button">
-                    <i className="pi pi-user"></i>
-                    <span>Profile</span>
-                </button></Link>
-                <Link href="/documentation">
+                <Link href="/auth/login">
                     <button type="button" className="p-link layout-topbar-button">
-                        <i className="pi pi-cog"></i>
-                        <span>Settings</span>
+                        <i className="pi pi-chevron-left" /> {/* Left arrow for Login */}
+                        <span>Login</span>
                     </button>
                 </Link>
+                <button type="button" className="p-link layout-topbar-button" onClick={handleLogout}>
+                    <i className="pi pi-sign-out" /> {/* Icon for Logout */}
+                    <span>Logout</span>
+                </button>
             </div>
         </div>
     );
