@@ -28,6 +28,7 @@ interface PayrollData {
     totalBonus: number;
     potongan: number;
     totalgaji: number;
+    slipGaji: string | null;
 }
 
 const DataPayrollKaryawan = () => {
@@ -52,6 +53,7 @@ const DataPayrollKaryawan = () => {
         totalBonus: 0,
         potongan: 0,
         totalgaji: 0,
+        slipGaji: ''
     });
     const [loading, setLoading] = useState(false);
     const toastRef = useRef<Toast>(null);
@@ -109,6 +111,7 @@ const DataPayrollKaryawan = () => {
                 totalBonus: employee.total_bonus || 0,
                 potongan: employee.potongan || 0,
                 totalgaji: employee.total_gaji || 0, // Pastikan total_gaji diterima
+                slipGaji: employee.slip_gaji || '',
             }));            
             setPayrolls(payrollData);
         } catch (error) {
@@ -280,6 +283,27 @@ const DataPayrollKaryawan = () => {
                     header="Total Gaji" 
                     body={(rowData) => rowData.totalgaji.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} 
                 />
+                <Column 
+    field="slipGaji" 
+    header="Slip Gaji" 
+    body={(data) => (
+        <Button 
+            label="Lihat Slip Gaji" 
+            icon="pi pi-eye" 
+            className="p-button-sm p-button-info"
+            onClick={() => {
+                // Tindakan ketika tombol diklik, misalnya membuka dialog untuk melihat slip gaji
+                Swal.fire({
+                    title: `Slip Gaji ${data.namaKaryawan}`,
+                    text: 'Ini adalah slip gaji kosong',
+                    icon: 'info',
+                    confirmButtonText: 'Tutup',
+                });
+            }}
+        />
+    )}
+    style={{ width: '15%' }}
+/>
             </DataTable>
         </div>
     </div>
