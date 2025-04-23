@@ -13,7 +13,10 @@ const AppMenu = () => {
     const model: AppMenuItem[] = [
         {
             label: 'Home',
-            items: [{ label: 'Dashboard Admin', icon: 'pi pi-fw pi-home', to: '/' }] // Dashboard mengarah ke halaman utama '/'
+            items: [
+                { label: 'Dashboard Admin', icon: 'pi pi-fw pi-home', to: '/' },
+                { label: 'Dashboard User', icon: 'pi pi-fw pi-user', to: '/pages/DashboardUser' }
+            ]
         },
         {
             label: 'KELOLA',

@@ -4,12 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import { Calendar } from 'primereact/calendar';
-// const { MapContainer, TileLayer, Marker, Popup } = require('react-leaflet');
 import 'leaflet/dist/leaflet.css';
 import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
 import { addLocale, locale } from 'primereact/api';
-import { useRouter } from 'next/navigation'; // Import useRouter untuk navigasi
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Toast } from 'primereact/toast';
 import dynamic from 'next/dynamic';
